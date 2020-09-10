@@ -1,0 +1,25 @@
+{
+  "Redirect" : {
+    "uid" : {
+      "type" : "UID",
+      "config" : {
+        "label" : "UID",
+        "useAsTitle" : true
+      }
+    },
+    "redirecturl" : {
+      "type" : "Text",
+      "config" : {
+        "label" : "url"
+      }
+    },
+    "redirectcode" : {
+      "type" : "Select",
+      "config" : {
+        "options" : [ "301", "302" ],
+        "default_value" : "301",
+        "label" : "code"
+      }
+    }
+  }
+}

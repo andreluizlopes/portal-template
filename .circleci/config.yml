@@ -1,0 +1,170 @@
+version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@0.1.13
+  aws-ecr: circleci/aws-ecr@6.5.0
+  aws-eks: circleci/aws-eks@0.2.3
+
+jobs:
+  build-and-test:
+    docker:
+      - image: circleci/node:10
+    environment:
+      RAZZLE_PUBLIC_DIR: /usr/src/app/build/public
+      NODE_ENV: development
+    steps:
+      - checkout
+      - run:
+          name: Configure NPM
+          command: |
+            yarn config set registry https://npm.pkg.github.com/escaletech
+            echo "//npm.pkg.github.com/escaletech/:_authToken=${GH_TOKEN}
+            //npm.pkg.github.com/download/:_authToken=${GH_TOKEN}" > .npmrc
+      - run:
+          name: Install dependencies
+          command: yarn install
+      - run:
+          name: Run tests
+          command: yarn test
+      - run:
+          name: Execute js standard style lint
+          command: yarn lint
+      - run:
+          name: Build project
+          command: |
+            CI=false npm rebuild node-sass
+            CI=false NODE_ENV=production yarn build
+      - persist_to_workspace:
+          root: .
+          paths: [ build, node_modules ]
+
+  deploy:
+    executor: aws-eks/python3
+    parameters:
+      env:
+        type: string
+      host:
+        type: string
+      cloudFrontId:
+        type: string
+      redis_url:
+        type: string
+    environment:
+      ENV: << parameters.env >>
+      HOST: << parameters.host >>
+      CLOUDFRONT_DIST_ID: << parameters.cloudFrontId >>
+      REDIS_URL: << parameters.redis_url >>
+    steps:
+      - checkout
+      - run: sudo apt-get update && sudo apt-get -y install gettext-base
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: eks-apps-<< parameters.env >>
+          aws-region: $AWS_REGION
+          install-kubectl: true
+      - run: cat ./kube.yml |
+          envsubst '$ENV $HOST $AWS_ECR_ACCOUNT_URL $CIRCLE_SHA1 $CLOUDFRONT_DIST_ID' |
+          kubectl apply -f -
+
+  deploy-storybook:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: 'yarn deploy-storybook'
+
+  post-deploy:
+    executor: aws-eks/python3
+    parameters:
+      host:
+        type: string
+      cloudFrontId:
+        type: string
+    steps:
+      - aws-cli/install
+      - run:
+          name: Wait for deployment to complete
+          command: |
+            until [ "$(curl https://<<parameters.host>>/_probe | jq -r '.version')" == "${CIRCLE_SHA1}" ]
+            do
+              echo "Pod not ready yet"
+              sleep 2
+            done
+            echo "Pod ready!"
+      - run:
+          name: Invalidate Cloudfront Cache
+          command: aws cloudfront create-invalidation --distribution-id <<parameters.cloudFrontId>> --paths "/*"
+
+ci_workflow: &ci_workflow
+  filters:
+    branches:
+      ignore: master
+    tags:
+      ignore: /.*/
+
+staging_workflow: &staging_workflow
+  filters:
+    branches:
+      only: master
+    tags:
+      ignore: /.*/
+
+production_workflow: &production_workflow
+  filters:
+    branches:
+      ignore: /.*/
+    tags:
+      only: /^v.*/
+
+workflows:
+  version: 2
+  continuous-integration:
+    jobs:
+      - build-and-test:
+          context: github-install-packages
+          <<: *ci_workflow
+  staging:
+    jobs:
+      - build-and-test:
+          context: github-install-packages
+          <<: *staging_workflow
+      - aws-ecr/build-and-push-image:
+          context: eks-applications
+          repo: %HOST%
+          create-repo: true
+          attach-workspace: true
+          tag: ${CIRCLE_SHA1}
+          requires:
+            - build-and-test
+          <<: *staging_workflow
+      - deploy:
+          context: eks-applications
+          env: staging
+          host: staging.%HOST%
+          cloudFrontId: %STAGING_CLOUDFRONTID%
+          redis_url: redis://10.100.111.136
+          requires:
+            - aws-ecr/build-and-push-image
+          <<: *staging_workflow
+      - post-deploy:
+          host: staging.%HOST%
+          cloudFrontId: %STAGING_CLOUDFRONTID%
+          requires:
+            - deploy
+          <<: *staging_workflow
+  production:
+    jobs:
+      - deploy:
+          context: eks-applications
+          env: production
+          host: %HOST%
+          cloudFrontId: %PROD_CLOUDFRONTID%
+          redis_url: redis://10.100.105.150
+          <<: *production_workflow
+      - post-deploy:
+          host: %HOST%
+          cloudFrontId: %PROD_CLOUDFRONTID%
+          requires:
+            - deploy
+          <<: *production_workflow
+

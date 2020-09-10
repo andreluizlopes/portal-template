@@ -1,0 +1,45 @@
+{
+  "Main" : {
+    "uid" : {
+      "type" : "UID",
+      "config" : {
+        "label" : "uid"
+      }
+    },
+    "favicon" : {
+      "type" : "Image",
+      "config" : {
+        "constraint" : {
+          "width" : 32,
+          "height" : 32
+        },
+        "thumbnails" : [ {
+          "name" : "60x60",
+          "width" : 60,
+          "height" : 60
+        }, {
+          "name" : "96x96",
+          "width" : 96,
+          "height" : 96
+        }, {
+          "name" : "192x192",
+          "width" : 192,
+          "height" : 192
+        }, {
+          "name" : "144x144",
+          "width" : 144,
+          "height" : 144
+        } ],
+        "label" : "Favicon"
+      }
+    },
+    "logo" : {
+      "type" : "Image",
+      "config" : {
+        "constraint" : { },
+        "thumbnails" : [ ],
+        "label" : "Logo"
+      }
+    }
+  }
+}

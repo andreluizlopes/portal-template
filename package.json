@@ -1,0 +1,152 @@
+{
+  "name": "portal-template",
+  "version": "0.3.1",
+  "license": "MIT",
+  "scripts": {
+    "start": "razzle start",
+    "start:debug": "razzle start --inspect=127.0.0.1:3005",
+    "build": "razzle build",
+    "test": "razzle test --env=jsdom --coverage --coverageDirectory=./coverage/",
+    "test:watch": "razzle test --watch --env=jsdom",
+    "test:update": "razzle test -u",
+    "lint": "eslint --fix",
+    "lint:cov": "eslint \"src/**/*.{js, jsx}\"",
+    "stylelint:local": "stylelint \"src/**/*.{js, jsx}\"",
+    "start:prod": "NODE_ENV=production node build/server.js",
+    "deploy-storybook": "storybook-to-ghpages --out=.out --ci --host-token-env-variable=WES_GITHUB_TOKEN",
+    "build-storybook": "build-storybook -s .out",
+    "storybook": "start-storybook -p 9009 -s .out"
+  },
+  "dependencies": {
+    "@escaletech/escale-components": "^0.4.18",
+    "@escaletech/razzle-sdk": "^1.1.2",
+    "@jaredpalmer/after": "latest",
+    "apollo-boost": "^0.4.4",
+    "aws-sdk": "^2.587.0",
+    "axios": "^0.19.0",
+    "body-parser": "^1.19.0",
+    "classnames": "^2.2.6",
+    "dayjs": "^1.8.15",
+    "express": "^4.16.2",
+    "express-pino-logger": "^4.0.0",
+    "express-validator": "^6.0.1",
+    "glob": "^7.1.4",
+    "graceful-fs": "^4.2.3",
+    "js-cookie": "^2.2.1",
+    "lodash": "^4.17.15",
+    "node-localstorage": "^1.3.1",
+    "nodemailer": "^6.4.2",
+    "pino": "^5.13.3",
+    "pino-pretty": "^3.2.1",
+    "prismic-javascript": "^2.0.1",
+    "prismic-reactjs": "^1.1.1",
+    "prop-types": "^15.6.2",
+    "razzle": "^3.0.0",
+    "react": "^16.8.3",
+    "react-animate-height": "^2.0.15",
+    "react-dom": "^16.8.3",
+    "react-facebook": "^8.0.4",
+    "react-google-recaptcha": "^2.0.1",
+    "react-gtm-module": "^2.0.8",
+    "react-helmet": "^5.2.0",
+    "react-loadable": "^5.5.0",
+    "react-rating": "^2.0.0",
+    "react-router-dom": "^4.2.2",
+    "react-slick": "^0.25.2",
+    "sitemap": "^4.1.1",
+    "slick-carousel": "^1.8.1",
+    "styled-components": "^4.1.3",
+    "styled-reset": "^4.0.1",
+    "uuid": "^3.3.3",
+    "vanilla-masker": "^1.2.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-transform-runtime": "^7.4.4",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.4.4",
+    "@babel/runtime-corejs3": "^7.8.4",
+    "@storybook/addon-a11y": "^5.2.1",
+    "@storybook/addon-actions": "^5.3.13",
+    "@storybook/addon-centered": "^5.2.1",
+    "@storybook/addon-info": "^5.2.1",
+    "@storybook/addon-knobs": "^5.3.9",
+    "@storybook/addon-links": "^5.3.13",
+    "@storybook/addon-notes": "^5.3.9",
+    "@storybook/addon-viewport": "^5.3.14",
+    "@storybook/addons": "^5.3.13",
+    "@storybook/react": "^5.3.13",
+    "@storybook/storybook-deployer": "^2.8.1",
+    "@testing-library/jest-dom": "^5.1.0",
+    "@testing-library/react": "^9.3.2",
+    "@types/jest": "^24.0.15",
+    "babel-eslint": "^10.0.1",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-inline-react-svg": "^1.1.0",
+    "eslint": "^6.7.1",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "^7.16.0",
+    "eslint-plugin-standard": "^4.0.1",
+    "husky": "^3.0.5",
+    "jest-localstorage-mock": "^2.4.0",
+    "lint-staged": "^9.2.0",
+    "prettier-standard": "^16.1.0",
+    "razzle-plugin-scss": "^3.0.0",
+    "react-test-renderer": "^16.7.0",
+    "standard": "^14.3.1",
+    "storybook-react-router": "^1.0.8",
+    "stylelint": "^11.0.0",
+    "stylelint-config-prettier": "^8.0.1",
+    "stylelint-config-recommended": "^3.0.0",
+    "stylelint-config-styled-components": "^0.1.1",
+    "stylelint-config-twbs-bootstrap": "^0.4.0",
+    "stylelint-processor-styled-components": "^1.9.0",
+    "webpack-bundle-analyzer": "^3.3.2"
+  },
+  "storybook-deployer": {
+    "commitMessage": "[ci skip]"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "env": {
+      "jest": true
+    },
+    "globals": [
+      "jest",
+      "describe",
+      "it",
+      "test",
+      "expect",
+      "afterAll",
+      "afterEach",
+      "FormData",
+      "localStorage",
+      "process"
+    ]
+  },
+  "jest": {
+    "setupFiles": [
+      "jest-localstorage-mock",
+      "<rootDir>/jestSetup.js"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js, jsx}": [
+      "yarn lint",
+      "yarn stylelint",
+      "yarn test --bail --findRelatedTests"
+    ]
+  }
+}
